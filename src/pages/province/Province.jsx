@@ -1,8 +1,6 @@
-import SearchIcon from "@rsuite/icons/Search";
 import React, { useEffect, useState } from "react";
-import { Button, Input, InputGroup, Stack, Table } from "rsuite";
+import { Table } from "rsuite";
 import Flag from "../../components/flag/Flag";
-import { findMaxValue } from "../../utils/FindMaxValue";
 import ProvincePopup from "./components/ProvincePopup";
 
 const { Column, HeaderCell, Cell } = Table;
@@ -109,12 +107,7 @@ const Province = ({ data, setData }) => {
 
   const handleAdd = () => {
     const confirmAdd = (formValue) => {
-      const newDistrictCode = findMaxValue(data.District, "ProvinceCode") + 1;
-
-      const arr = [
-        ...data.Province,
-        { ...formValue, ProvinceCode: newDistrictCode.toString() },
-      ];
+      const arr = [...data.Province, formValue];
 
       setData({ ...data, Province: arr });
       handleReload();
@@ -132,10 +125,6 @@ const Province = ({ data, setData }) => {
   };
 
   useEffect(() => {
-    handleSearch();
-  }, [params]);
-
-  useEffect(() => {
     setList(data.District);
     handleSearch();
   }, [reloadKey]);
@@ -145,96 +134,93 @@ const Province = ({ data, setData }) => {
       style={{
         height: "100%",
         width: "100%",
-        overflow: "hidden",
-        padding: "10px 0",
+        padding: 10,
       }}
     >
-      <Stack style={{ marginBottom: 30 }} spacing={10}>
-        <Stack direction="column" spacing={10}>
-          <Stack spacing={10}>
+      <div
+        className="d-flex align-items-center"
+        style={{ marginBottom: 30, gap: 10 }}
+      >
+        <div className="d-flex flex-column" style={{ gap: 10 }}>
+          <div className="d-flex align-items-center" style={{ gap: 10 }}>
             <label>Tìm theo mã tỉnh</label>
-            <InputGroup
+            <input
+              className="form-control"
               style={{ width: 300 }}
               onChange={(e) => {
                 setParams({ ...params, ProvinceCode: e.target.value });
               }}
-            >
-              <Input />
-              <InputGroup.Addon>
-                <SearchIcon />
-              </InputGroup.Addon>
-            </InputGroup>
-          </Stack>
-          <Stack spacing={10}>
+            />
+          </div>
+          <div className="d-flex align-items-center" style={{ gap: 10 }}>
             <label>Tìm theo tên tỉnh</label>
-            <InputGroup
+            <input
+              className="form-control"
               style={{ width: 300 }}
               onChange={(e) => {
-                setParams({ ...params, ProvinceName: e.target.value });
+                setParams({ ...params, DistrictName: e.target.value });
               }}
-            >
-              <Input />
-              <InputGroup.Addon>
-                <SearchIcon />
-              </InputGroup.Addon>
-            </InputGroup>
-          </Stack>
-        </Stack>
+            />
+          </div>
+        </div>
 
-        <Button appearance="primary" color="green" onClick={handleAdd}>
+        <button className="btn bg-info" onClick={handleSearch}>
+          Tìm kiếm
+        </button>
+
+        <button className="btn btn-success" onClick={handleAdd}>
           Thêm
-        </Button>
-      </Stack>
+        </button>
+      </div>
 
-      <Table data={list} style={{ width: "100%" }} height={600} rowHeight={55}>
-        <Column width={100}>
-          <HeaderCell>STT</HeaderCell>
-          <Cell dataKey="Idx" />
-        </Column>
+      <div className="table-responsive" style={{ maxHeight: 600 }}>
+        <table class="table">
+          <thead
+            className="bg-secondary"
+            style={{ position: "sticky", top: 0, zIndex: 1 }}
+          >
+            <tr>
+              <th scope="col">STT</th>
+              <th scope="col">DistrictCode</th>
+              <th scope="col">ProvinceCode</th>
+              <th scope="col">DistrictName</th>
+              <th scope="col">FlagActive</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((item, index) => {
+              return (
+                <tr>
+                  <th scope="row">{item.Idx}</th>
+                  <td>{item.ProvinceCode}</td>
+                  <td>{item.ProvinceName}</td>
+                  <td>
+                    <Flag flag={item.FlagActive} />
+                  </td>
+                  <td>
+                    <div className="d-flex" style={{ gap: 10 }}>
+                      <button
+                        className="btn btn-warning "
+                        onClick={() => handleEdit(item)}
+                      >
+                        Sửa
+                      </button>
 
-        <Column width={200}>
-          <HeaderCell>ProvinceCode</HeaderCell>
-          <Cell dataKey="ProvinceCode" />
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell>ProvinceName</HeaderCell>
-          <Cell dataKey="ProvinceName" />
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell>FlagActive</HeaderCell>
-          <Cell style={{ display: "flex", justifyContent: "center" }}>
-            {(rowData) => <Flag flag={rowData.FlagActive} />}
-          </Cell>
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell></HeaderCell>
-          <Cell>
-            {(rowData) => (
-              <Stack spacing={10}>
-                <Button
-                  style={{ height: 30 }}
-                  color="yellow"
-                  appearance="primary"
-                  onClick={() => handleEdit(rowData)}
-                >
-                  Sửa
-                </Button>
-                <Button
-                  style={{ height: 30 }}
-                  color="red"
-                  appearance="primary"
-                  onClick={() => handleDelete(rowData)}
-                >
-                  Xóa
-                </Button>
-              </Stack>
-            )}
-          </Cell>
-        </Column>
-      </Table>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {popUp}
     </div>

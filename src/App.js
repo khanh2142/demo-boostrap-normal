@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import "rsuite/dist/rsuite.min.css";
+import Navbar from "../src/components/layouts/Navbar";
 import "./App.css";
-import Navbar from "./components/layouts/Navbar";
 import * as districtList from "./data/Mst_District.json";
 import * as provinceList from "./data/Mst_Province.json";
 import District from "./pages/district/District";
@@ -36,27 +35,34 @@ function App() {
 
   const components = [
     {
-      key: "1-1",
+      key: "1",
+      title: "Quận/Huyện",
       component: <District data={data} setData={setData} />,
     },
     {
-      key: "1-2",
+      key: "2",
+      title: "Tỉnh/Thành phố",
       component: <Province data={data} setData={setData} />,
     },
   ];
 
-  const [activeKey, setActiveKey] = React.useState("1-1");
-  const [expanded, setExpand] = React.useState(true);
+  const [activeKey, setActiveKey] = React.useState("1");
 
   return (
     <div className="App">
       <Navbar
+        list={components}
+        setActiveKey={setActiveKey}
         activeKey={activeKey}
-        onSelect={setActiveKey}
-        expanded={expanded}
-        onExpand={setExpand}
       />
-      <div style={{ height: "100vh", width: "100%", paddingRight: 10 }}>
+
+      <div
+        style={{
+          height: "100vh",
+          width: "100%",
+          paddingRight: 10,
+        }}
+      >
         {components.find((item) => item.key === activeKey) &&
           components.find((item) => item.key === activeKey).component}
       </div>

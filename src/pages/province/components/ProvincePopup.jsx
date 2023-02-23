@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Form, Modal, Schema, Toggle } from "rsuite";
-import RequireField from "../../../components/form/RequireField";
+import React, { useEffect, useState } from "react";
 import { checkExistInArray } from "../../../utils/CheckExistInArray";
 
-const DistrictPopup = ({
+const ProvincePopup = ({
   uuid,
   rowData,
   handleClick,
@@ -17,19 +15,6 @@ const DistrictPopup = ({
     FlagActive: "1",
   };
 
-  const formModel = Schema.Model({
-    ProvinceCode:
-      type === "add"
-        ? Schema.Types.StringType()
-            .addRule((value) => {
-              return !checkExistInArray(provinceList, "ProvinceCode", value);
-            }, "Mã tỉnh đã tồn tại")
-            .isRequired()
-        : Schema.Types.StringType(),
-    ProvinceName: Schema.Types.StringType().isRequired(),
-  });
-
-  const formRef = useRef();
   const [open, setOpen] = useState(false);
   const [formValue, setFormValue] = useState(defaultFormValue);
 
@@ -47,8 +32,25 @@ const DistrictPopup = ({
   }, [uuid, rowData, type]);
 
   const handleSubmit = () => {
-    if (!formRef.current.check()) {
-      return;
+    if (type === "add") {
+      if (!formValue.ProvinceCode) {
+        alert("Vui lòng nhập ProvinceCode!");
+        return;
+      }
+
+      if (
+        checkExistInArray(provinceList, "ProvinceCode", formValue.ProvinceCode)
+      ) {
+        alert("Mã tỉnh/thành phố bị trùng!");
+        return;
+      }
+    }
+
+    if (type === "edit") {
+      if (!formValue.ProvinceName) {
+        alert("Vui lòng nhập ProvinceName!");
+        return;
+      }
     }
 
     handleClick(formValue);
@@ -57,62 +59,93 @@ const DistrictPopup = ({
 
   const renderBody = () => {
     return (
-      <Form
-        formValue={formValue}
-        onChange={(value) => setFormValue(value)}
-        model={formModel}
-        ref={formRef}
-      >
-        <Form.Group controlId="ProvinceCode">
-          <Form.ControlLabel>ProvinceCode</Form.ControlLabel>
-          <Form.Control
+      <form>
+        <div class="mb-3">
+          <label for="" class="form-label">
+            ProvinceCode
+          </label>
+          <input
+            type="text"
+            class="form-control"
             name="ProvinceCode"
-            disabled={type !== "add"}
-            plaintext={type === "delete"}
-          />
-        </Form.Group>
-        <Form.Group controlId="ProvinceName">
-          <Form.ControlLabel>
-            ProvinceName <RequireField />
-          </Form.ControlLabel>
-          <Form.Control name="ProvinceName" plaintext={type === "delete"} />
-        </Form.Group>
-        <Form.Group controlId="FlagActive">
-          <Form.ControlLabel>FlagActive</Form.ControlLabel>
-          <Form.Control
-            name="FlagActive"
-            accepter={Toggle}
-            onChange={(checked) =>
-              setFormValue({ ...formValue, FlagActive: checked ? "1" : "0" })
+            value={formValue.ProvinceCode}
+            onChange={(e) =>
+              setFormValue({ ...formValue, ProvinceCode: e.target.value })
             }
-            value={formValue.FlagActive === "1"}
-            readOnly={type === "delete"}
+            disabled={type === "delete"}
           />
-        </Form.Group>
-      </Form>
+        </div>
+        <div class="mb-3">
+          <label for="" class="form-label">
+            ProvinceName
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            name="ProvinceName"
+            value={formValue.ProvinceName}
+            onChange={(e) =>
+              setFormValue({ ...formValue, ProvinceName: e.target.value })
+            }
+            disabled={type === "delete"}
+          />
+        </div>
+
+        <div class="form-check form-switch">
+          <label class="form-check-label" for="">
+            FlagActive
+          </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            checked={formValue.FlagActive === "1"}
+            onChange={(e) => {
+              setFormValue({
+                ...formValue,
+                FlagActive: e.target.checked ? "1" : "0",
+              });
+            }}
+            disabled={type === "delete"}
+          />
+        </div>
+      </form>
     );
   };
 
   return (
-    <Modal open={open} onClose={handleClose} backdrop="static">
-      <Modal.Header>
-        <Modal.Title>{title}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>{renderBody()}</Modal.Body>
-      <Modal.Footer>
-        <Button
-          onClick={handleSubmit}
-          appearance="primary"
-          color={
-            type === "edit" ? "orange" : type === "delete" ? "red" : "green"
-          }
-        >
-          Ok
-        </Button>
-        <Button onClick={handleClose}>Thoát</Button>
-      </Modal.Footer>
-    </Modal>
+    open && (
+      <div
+        className="bg-body-secondary position-fixed shadow-lg rounded p-2"
+        style={{
+          width: 500,
+          top: 50,
+          left: "calc(50% - 150px)",
+          zIndex: 100,
+        }}
+      >
+        <h3>{title}</h3>
+        <>{renderBody()}</>
+        <div className="d-flex justify-content-end" style={{ gap: 10 }}>
+          <button
+            className={`btn btn-${
+              type === "edit"
+                ? "warning"
+                : type === "delete"
+                ? "danger"
+                : "success"
+            }`}
+            onClick={handleSubmit}
+          >
+            OK
+          </button>
+          <button className="btn btn-secondary" onClick={handleClose}>
+            Thoát
+          </button>
+        </div>
+      </div>
+    )
   );
 };
 
-export default DistrictPopup;
+export default ProvincePopup;

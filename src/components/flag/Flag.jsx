@@ -19,9 +19,9 @@ const Flag = ({ flag }) => {
   return (
     <div
       style={{
-        width: 100,
         backgroundColor: result ? result.color : "#fff",
-        height: 22,
+        height: 25,
+        textAlign: "center",
       }}
     >
       {result && result.status}

@@ -1,8 +1,6 @@
-import SearchIcon from "@rsuite/icons/Search";
 import React, { useEffect, useState } from "react";
-import { Button, Input, InputGroup, SelectPicker, Stack, Table } from "rsuite";
+import { Table } from "rsuite";
 import Flag from "../../components/flag/Flag";
-import { findMaxValue } from "../../utils/FindMaxValue";
 import DistrictPopup from "./components/DistrictPopup";
 
 const { Column, HeaderCell, Cell } = Table;
@@ -10,7 +8,6 @@ const { Column, HeaderCell, Cell } = Table;
 const District = ({ data, setData }) => {
   const [list, setList] = useState(data.District);
   const [params, setParams] = useState({
-    ProvinceCode: null,
     DistrictCode: "",
     DistrictName: "",
   });
@@ -44,12 +41,6 @@ const District = ({ data, setData }) => {
             params.DistrictName.toLowerCase()
           )
         );
-      })
-      .filter((item, index) => {
-        if (!params.ProvinceCode) {
-          return item;
-        }
-        return item.ProvinceCode === params.ProvinceCode;
       })
       .map((item, index) => {
         return {
@@ -110,12 +101,7 @@ const District = ({ data, setData }) => {
 
   const handleAdd = () => {
     const confirmAdd = (formValue) => {
-      const newDistrictCode = findMaxValue(data.District, "DistrictCode") + 1;
-
-      const arr = [
-        ...data.District,
-        { ...formValue, DistrictCode: newDistrictCode.toString() },
-      ];
+      const arr = [...data.District, formValue];
 
       setData({ ...data, District: arr });
       handleReload();
@@ -134,10 +120,6 @@ const District = ({ data, setData }) => {
   };
 
   useEffect(() => {
-    handleSearch();
-  }, [params]);
-
-  useEffect(() => {
     setList(data.District);
     handleSearch();
   }, [reloadKey]);
@@ -147,115 +129,94 @@ const District = ({ data, setData }) => {
       style={{
         height: "100%",
         width: "100%",
-        overflow: "hidden",
-        padding: "10px 0",
+        padding: 10,
       }}
     >
-      <Stack style={{ marginBottom: 30 }} spacing={10} alignItems="flex-start">
-        <Stack direction="column" spacing={10}>
-          <Stack spacing={10}>
+      <div
+        className="d-flex align-items-center"
+        style={{ marginBottom: 30, gap: 10 }}
+      >
+        <div className="d-flex flex-column" style={{ gap: 10 }}>
+          <div className="d-flex align-items-center" style={{ gap: 10 }}>
             <label>Tìm theo mã huyện</label>
-            <InputGroup
+            <input
+              className="form-control"
               style={{ width: 300 }}
               onChange={(e) => {
                 setParams({ ...params, DistrictCode: e.target.value });
               }}
-            >
-              <Input />
-              <InputGroup.Addon>
-                <SearchIcon />
-              </InputGroup.Addon>
-            </InputGroup>
-          </Stack>
-          <Stack spacing={10}>
+            />
+          </div>
+          <div className="d-flex align-items-center" style={{ gap: 10 }}>
             <label>Tìm theo tên huyện</label>
-            <InputGroup
+            <input
+              className="form-control"
               style={{ width: 300 }}
               onChange={(e) => {
                 setParams({ ...params, DistrictName: e.target.value });
               }}
-            >
-              <Input />
-              <InputGroup.Addon>
-                <SearchIcon />
-              </InputGroup.Addon>
-            </InputGroup>
-          </Stack>
-        </Stack>
+            />
+          </div>
+        </div>
 
-        <SelectPicker
-          label="Tỉnh"
-          data={data.Province.map((item) => {
-            return {
-              label: item.ProvinceName,
-              value: item.ProvinceCode,
-            };
-          })}
-          onChange={(e) => {
-            setParams({ ...params, ProvinceCode: e });
-          }}
-          style={{ width: 224 }}
-        />
+        <button className="btn bg-info" onClick={handleSearch}>
+          Tìm kiếm
+        </button>
 
-        <Button appearance="primary" color="green" onClick={handleAdd}>
+        <button className="btn btn-success" onClick={handleAdd}>
           Thêm
-        </Button>
-      </Stack>
+        </button>
+      </div>
 
-      <Table data={list} style={{ width: "100%" }} height={600} rowHeight={55}>
-        <Column width={100}>
-          <HeaderCell>STT</HeaderCell>
-          <Cell dataKey="Idx" />
-        </Column>
+      <div className="table-responsive" style={{ maxHeight: 600 }}>
+        <table class="table">
+          <thead
+            className="bg-secondary"
+            style={{ position: "sticky", top: 0, zIndex: 1 }}
+          >
+            <tr>
+              <th scope="col">STT</th>
+              <th scope="col">DistrictCode</th>
+              <th scope="col">ProvinceCode</th>
+              <th scope="col">DistrictName</th>
+              <th scope="col">FlagActive</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((item, index) => {
+              return (
+                <tr>
+                  <th scope="row">{item.Idx}</th>
+                  <td>{item.DistrictCode}</td>
+                  <td>{item.ProvinceCode}</td>
+                  <td>{item.DistrictName}</td>
+                  <td>
+                    <Flag flag={item.FlagActive} />
+                  </td>
+                  <td>
+                    <div className="d-flex" style={{ gap: 10 }}>
+                      <button
+                        className="btn btn-warning "
+                        onClick={() => handleEdit(item)}
+                      >
+                        Sửa
+                      </button>
 
-        <Column width={200}>
-          <HeaderCell>DistrictCode</HeaderCell>
-          <Cell dataKey="DistrictCode" />
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell>ProvinceCode</HeaderCell>
-          <Cell dataKey="ProvinceCode" />
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell>DistrictName</HeaderCell>
-          <Cell dataKey="DistrictName" />
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell>FlagActive</HeaderCell>
-          <Cell style={{ display: "flex", justifyContent: "center" }}>
-            {(rowData) => <Flag flag={rowData.FlagActive} />}
-          </Cell>
-        </Column>
-
-        <Column width={200}>
-          <HeaderCell></HeaderCell>
-          <Cell>
-            {(rowData) => (
-              <Stack spacing={10}>
-                <Button
-                  style={{ height: 30 }}
-                  color="yellow"
-                  appearance="primary"
-                  onClick={() => handleEdit(rowData)}
-                >
-                  Sửa
-                </Button>
-                <Button
-                  style={{ height: 30 }}
-                  color="red"
-                  appearance="primary"
-                  onClick={() => handleDelete(rowData)}
-                >
-                  Xóa
-                </Button>
-              </Stack>
-            )}
-          </Cell>
-        </Column>
-      </Table>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(item)}
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {popUp}
     </div>
