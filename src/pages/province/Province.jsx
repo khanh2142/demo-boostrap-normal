@@ -125,7 +125,7 @@ const Province = ({ data, setData }) => {
   };
 
   useEffect(() => {
-    setList(data.District);
+    setList(data.Province);
     handleSearch();
   }, [reloadKey]);
 
