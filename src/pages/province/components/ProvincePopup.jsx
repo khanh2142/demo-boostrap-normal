@@ -72,7 +72,7 @@ const ProvincePopup = ({
             onChange={(e) =>
               setFormValue({ ...formValue, ProvinceCode: e.target.value })
             }
-            disabled={type === "delete"}
+            disabled={type !== "add"}
           />
         </div>
         <div class="mb-3">
