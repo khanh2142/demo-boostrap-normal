@@ -158,7 +158,7 @@ const Province = ({ data, setData }) => {
               className="form-control"
               style={{ width: 300 }}
               onChange={(e) => {
-                setParams({ ...params, DistrictName: e.target.value });
+                setParams({ ...params, ProvinceName: e.target.value });
               }}
             />
           </div>
@@ -181,9 +181,8 @@ const Province = ({ data, setData }) => {
           >
             <tr>
               <th scope="col">STT</th>
-              <th scope="col">DistrictCode</th>
               <th scope="col">ProvinceCode</th>
-              <th scope="col">DistrictName</th>
+              <th scope="col">ProvinceName</th>
               <th scope="col">FlagActive</th>
               <th scope="col"></th>
             </tr>
